@@ -1,14 +1,14 @@
-const express = require('express');
-const { body } = require('express-validator');
+import { Router } from 'express';
+import { body } from 'express-validator';
 
-const rolesController = require('../controllers/roles');
-const Role = require('../models/role');
-const isAuth = require('../middleware/is-auth');
-const isAdmin = require('../middleware/is-admin');
+import { getRoles, getRole, postRole, putRole, deleteRole } from '../controllers/roles';
+import Role from '../models/role';
+import isAuth from '../middleware/is-auth';
+import isAdmin from '../middleware/is-admin';
 
-const router = express.Router();
+const router = Router();
 
-const roleValidators = (isAdd) => {
+const roleValidators = (isAdd: boolean): any => {
     return [
         body('name')
             .not().isEmpty()
@@ -16,7 +16,7 @@ const roleValidators = (isAdd) => {
             .isLength({ min: 3 })
             .withMessage('This field at least 3 characters.')
             .custom((value, { req }) => {
-                return Role.findOne(isAdd ? { name: value } : { name: req.body.name, _id: { $ne: req.params.id } }).then(oldUser => {
+                return Role.findOne(isAdd ? { name: value } : { name: req.body.name, _id: { $ne: req.params!.id } }).then((oldUser: any) => {
                     if (oldUser) {
                         return Promise.reject('Role name exists already, please pick a different one.');
                     }
@@ -32,28 +32,28 @@ const roleValidators = (isAdd) => {
 }
 
 // GET /roles
-router.get('/roles', isAuth, rolesController.getRoles
+router.get('/roles', isAuth, getRoles
     // #swagger.tags = ['Roles']
 );
 
 // GET /roles/5
-router.get('/role/:id', isAuth, rolesController.getRole
+router.get('/role/:id', isAuth, getRole
     // #swagger.tags = ['Roles']
 );
 
 // POST /roles
-router.post('/role/', [isAuth, roleValidators(true)], rolesController.postRole
+router.post('/role/', [isAuth, roleValidators(true)], postRole
     // #swagger.tags = ['Roles']
 );
 
 // PUT /roles/5
-router.put('/role/:id', [isAuth, roleValidators(false)], rolesController.putRole
+router.put('/role/:id', [isAuth, roleValidators(false)], putRole
     // #swagger.tags = ['Roles']
 );
 
 // DELETE /roles/5
-router.delete('/role/:id', [isAuth, isAdmin], rolesController.deleteRole
+router.delete('/role/:id', [isAuth, isAdmin], deleteRole
     // #swagger.tags = ['Roles']
 );
 
-module.exports = router;
+export default router;

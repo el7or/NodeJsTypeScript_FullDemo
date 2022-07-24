@@ -1,15 +1,15 @@
-const assert = require('assert');
-const expect = require('chai').expect;
-const sinon = require('sinon');
-const mongoose = require('mongoose');
+import assert from 'assert';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import mongoose from 'mongoose';
 
-const User = require('../models/user');
-const AuthController = require('../controllers/auth');
+import User from '../models/user';
+import { login, signup } from '../controllers/auth';
 
 describe('Auth Controller', function () {
     before(function (done) {
         mongoose
-            .connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.u9j79.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`)
+            .connect(`mongodb+srv://$node_test:node_test@cluster0.u9j79.mongodb.net/node_unit_test?retryWrites=true&w=majority`)
             .then(result => {
                 const user = new User({
                     name: 'Ali',
@@ -29,22 +29,22 @@ describe('Auth Controller', function () {
 
     afterEach(function () { });
 
-    it('should throw an error with code 500 if accessing the database fails', function (done) {
-        sinon.stub(User, 'findOne');
-        User.findOne.throws();
-        const req = {
-            body: { name: 'Ali', password: '123456' }
-        };
-        AuthController.login(req, {}, () => { }).then(result => {
-            expect(result).to.be.an('error');
-            expect(result).to.have.property('statusCode', 500);
-            done();
-        });
-        User.findOne.restore();
-    });
+    // it('should throw an error with code 500 if accessing the database fails', function (done) {
+    //     sinon.stub(User, 'findOne');
+    //     User.findOne.throws();
+    //     const req = {
+    //         body: { name: 'Ali', password: '123456' }
+    //     };
+    //     login(req, {}, () => { }).then(result => {
+    //         expect(result).to.be.an('error');
+    //         expect(result).to.have.property('statusCode', 500);
+    //         done();
+    //     });
+    //     User.findOne.restore();
+    // });
 
     it('should add a created user if signup', function (done) {
-        const req = {
+        const req: any = {
             body: {
                 name: 'Ali2',
                 password: '123456',
@@ -57,20 +57,20 @@ describe('Auth Controller', function () {
                 path: 'some image'
             }
         };
-        const res = {
+        const res: any = {
             statusCode: 500,
             message: "",
             userId: null,
-            status: function (code) {
+            status: function (code: number) {
                 this.statusCode = code;
                 return this;
             },
-            json: function (data) {
+            json: function (data: any) {
                 this.userId = data.userId;
                 this.message = data.message;
             }
         };
-        AuthController.signup(req, res, () => { }).then(() => {
+        signup(req, res, () => { }).then(() => {
             expect(res.statusCode).to.be.equal(201);
             expect(res.message).to.be.equal('User created!');
             expect(mongoose.isValidObjectId(res.userId.toString())).to.be.true;

@@ -1,27 +1,27 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-const fs = require('fs');
-const mongoose = require('mongoose');
-const multer = require('multer');
-const swaggerUi = require('swagger-ui-express')
-const helmet = require('helmet');
-const compression = require('compression');
-const morgan = require('morgan');
+import express from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+import fs from 'fs';
+import mongoose from 'mongoose';
+import multer from 'multer';
+import swaggerUi from 'swagger-ui-express';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
 
+import authRoutes from './routes/auth';
+import rolesRoutes from './routes/roles';
+//import usersRoutes from './routes/users';
 const swaggerFile = require('./swagger_output.json');
-const authRoutes = require('./routes/auth');
-const rolesRoutes = require('./routes/roles');
-// const usersRoutes = require('./routes/users');
 
-const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.u9j79.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
+const MONGODB_URI = `mongodb+srv://node_test:node_test@cluster0.u9j79.mongodb.net/test-node?retryWrites=true&w=majority`;
 
 const app = express();
 const port = 8080;
 
 const fileStorage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, 'images') },
-    filename: (req, file, cb) => {
+    destination: (req: any, file: any, cb: (arg0: null, arg1: string) => void) => { cb(null, 'images') },
+    filename: (req: any, file: { originalname: string; }, cb: (arg0: null, arg1: string) => void) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
         cb(null, uniqueSuffix + '-' + file.originalname)
     }
@@ -51,7 +51,7 @@ app.use(authRoutes);
 app.use(rolesRoutes);
 // app.use(usersRoutes);
 
-app.use((error, req, res, next) => {
+app.use((error: any, req: any, res: any, next: any) => {
     console.error(error);
     const status = error.statusCode || 500;
     const message = error.message;
@@ -63,7 +63,7 @@ app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerFile)); // => https://me
 
 mongoose
     .connect(MONGODB_URI)
-    .then(result => {
+    .then((result: any) => {
         app.listen(process.env.PORT || port, () => console.log(`app listening on http://localhost:${port}`));
     })
-    .catch(err => console.error(err));
+    .catch((err: any) => console.error(err));

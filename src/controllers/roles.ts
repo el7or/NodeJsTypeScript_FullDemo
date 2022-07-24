@@ -1,16 +1,44 @@
-const { validationResult } = require('express-validator');
+import { validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
-const Role = require('../models/role');
+import Role from '../models/role';
+import { IError } from '../util/ierror';
 
-exports.getRoles = (req, res, next) => {
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+    }
+  }
+}
+interface RequestParams {
+  id?: string;
+}
+interface ResponseBody {
+}
+interface RequestBody {
+  name?: string;
+  description?: string;
+}
+interface RequestQuery {
+  page?: number;
+}
+interface ResponseBody {
+}
+
+export const getRoles = (req: Request<RequestParams, ResponseBody, RequestBody, RequestQuery>, res: Response<ResponseBody>, next: NextFunction) => {
   const currentPage = req.query.page || 1;
   const perPage = 2;
-  let totalItems;
+  let totalItems: number;
   Role.find()
     .countDocuments()
     .then(count => {
       totalItems = count;
-      return Role.findWithUsersCount()
+      //return Role.findWithUsersCount()
+      return Role.aggregate([
+        { $lookup: { from: "users", localField: "_id", foreignField: "roleId", as: "usersCount" } },
+        { $addFields: { usersCount: { $size: "$usersCount" } } }
+      ])
         .skip((currentPage - 1) * perPage)
         .limit(perPage);
     })
@@ -29,12 +57,12 @@ exports.getRoles = (req, res, next) => {
     });
 };
 
-exports.getRole = (req, res, next) => {
+export const getRole = (req: Request<RequestParams, ResponseBody, RequestBody, RequestQuery>, res: Response<ResponseBody>, next: NextFunction) => {
   const roleId = req.params.id;
   Role.findById(roleId)
     .then(role => {
       if (!role) {
-        const error = new Error('Could not find role.');
+        const error = new IError('Could not find role.');
         error.statusCode = 404;
         throw error;
       }
@@ -48,11 +76,11 @@ exports.getRole = (req, res, next) => {
     });
 };
 
-exports.postRole = async (req, res, next) => {
+export const postRole = async (req: Request<RequestParams, ResponseBody, RequestBody, RequestQuery>, res: Response<ResponseBody>, next: NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const error = new Error('Validation failed, entered data is incorrect.');
+      const error = new IError('Validation failed, entered data is incorrect.');
       error.statusCode = 422;
       error.data = errors.array();
       throw error;
@@ -66,7 +94,7 @@ exports.postRole = async (req, res, next) => {
       message: 'Role created successfully!',
       result: result
     });
-  } catch (err) {
+  } catch (err: any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -74,11 +102,11 @@ exports.postRole = async (req, res, next) => {
   }
 };
 
-exports.putRole = (req, res, next) => {
+export const putRole = (req: Request<RequestParams, ResponseBody, RequestBody, RequestQuery>, res: Response<ResponseBody>, next: NextFunction) => {
   const roleId = req.params.id;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
+    const error = new IError('Validation failed, entered data is incorrect.');
     error.statusCode = 422;
     error.data = errors.array();
     throw error;
@@ -86,7 +114,7 @@ exports.putRole = (req, res, next) => {
   Role.findById(roleId)
     .then(role => {
       if (!role) {
-        const error = new Error('Could not find role.');
+        const error = new IError('Could not find role.');
         error.statusCode = 404;
         throw error;
       }
@@ -106,12 +134,12 @@ exports.putRole = (req, res, next) => {
     });
 };
 
-exports.deleteRole = (req, res, next) => {
+export const deleteRole = (req: Request<RequestParams, ResponseBody, RequestBody, RequestQuery>, res: Response<ResponseBody>, next: NextFunction) => {
   const roleId = req.params.id;
   Role.findById(roleId)
     .then(role => {
       if (!role) {
-        const error = new Error('Could not find role.');
+        const error = new IError('Could not find role.');
         error.statusCode = 404;
         throw error;
       }

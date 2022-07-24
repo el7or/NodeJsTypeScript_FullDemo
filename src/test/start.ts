@@ -1,5 +1,5 @@
-const assert = require('assert');
-const expect = require('chai').expect;
+import assert from 'assert';
+import { expect } from 'chai';
 
 describe('First Test', function () {
     it('should add numbers correctly', function () {

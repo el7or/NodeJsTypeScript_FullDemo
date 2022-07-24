@@ -1,14 +1,14 @@
-const assert = require('assert');
-const expect = require('chai').expect;
-const jwt = require('jsonwebtoken');
-const sinon = require('sinon');
+import assert from 'assert';
+import { expect } from 'chai';
+import jwt from 'jsonwebtoken';
+import sinon from 'sinon';
 
-const authMiddleware = require('../middleware/is-auth');
+import authMiddleware from '../middleware/is-auth';
 
 describe('Auth middleware', function () {
   it('should throw the error "Not authenticated." if no authorization header', function () {
     const req = {
-      get: function (headerName) {
+      get: function (headerName: string) {
         return null;
       }
     };
@@ -19,7 +19,7 @@ describe('Auth middleware', function () {
 
   it('should throw an error if the authorization header is only one string ("Bearer without token")', function () {
     const req = {
-      get: function (headerName) {
+      get: function (headerName: string) {
         return 'Bearer ';
       }
     };
@@ -28,8 +28,8 @@ describe('Auth middleware', function () {
   });
 
   it('should yield a userId after decoding the token', function () {
-    const req = {
-      get: function (headerName) {
+    const req: any = {
+      get: function (headerName: string) {
         return 'Bearer ' + jwt.sign({ userId: 'abc' }, 'somesupersecretsecret');
       }
     };
@@ -53,7 +53,7 @@ describe('Auth middleware', function () {
 
   it('should throw an error if the token cannot be verified', function () {
     const req = {
-      get: function (headerName) {
+      get: function (headerName: string) {
         return 'Bearer xyz';
       }
     };

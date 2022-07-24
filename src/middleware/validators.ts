@@ -1,13 +1,13 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-exports.isEmail = (propName) => {
+export const isEmail = (propName: any) => {
     return body(propName)
         .isEmail()
         .withMessage('Please enter a valid email.')
         .normalizeEmail();
 }
 
-exports.isRequired = (propName) => {
+export const isRequired = (propName: any) => {
     return body(propName)
         .not().isEmpty()
         .withMessage(`This Field is required!`)
