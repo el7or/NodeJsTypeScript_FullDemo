@@ -1,0 +1,36 @@
+{
+  "name": "node-rest-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "engines": {
+    "node": "16.15.1"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test MONGO_USER=node_test MONGO_PASSWORD=node_test MONGO_DEFAULT_DATABASE=node_unit_test mocha --timeout 5000",
+    "start": "NODE_ENV=production MONGO_USER=node_test MONGO_PASSWORD=node_test MONGO_DEFAULT_DATABASE=test-node node swagger.js",
+    "start-server": "node app.js",
+    "dev": "node swagger.js & nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "express": "^4.18.1",
+    "express-validator": "^6.14.2",
+    "helmet": "^5.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.4.5",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "swagger-autogen": "^2.21.5",
+    "swagger-ui-express": "^4.5.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0",
+    "nodemon": "^2.0.19",
+    "sinon": "^14.0.0"
+  }
+}

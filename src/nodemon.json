@@ -1,0 +1,8 @@
+{
+    "env": {
+        "NODE_ENV": "development",
+        "MONGO_USER": "node_test",
+        "MONGO_PASSWORD": "node_test",
+        "MONGO_DEFAULT_DATABASE": "test-node"
+    }
+}
